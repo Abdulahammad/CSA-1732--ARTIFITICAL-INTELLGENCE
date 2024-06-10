@@ -1,0 +1,72 @@
+import heapq
+
+class Puzzle:
+    def __init__(self, board, moves=0, prev=None):
+        self.board = board
+        self.moves = moves
+        self.prev = prev
+        self.empty_pos = self.board.index(0)
+
+    def manhattan_distance(self):
+        distance = 0
+        for i, tile in enumerate(self.board):
+            if tile == 0:
+                continue
+            target_x, target_y = divmod(tile - 1, 3)
+            current_x, current_y = divmod(i, 3)
+            distance += abs(target_x - current_x) + abs(target_y - current_y)
+        return distance
+
+    def get_neighbors(self):
+        neighbors = []
+        x, y = divmod(self.empty_pos, 3)
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            new_x, new_y = x + dx, y + dy
+            if 0 <= new_x < 3 and 0 <= new_y < 3:
+                new_empty_pos = new_x * 3 + new_y
+                new_board = self.board[:]
+                new_board[self.empty_pos], new_board[new_empty_pos] = new_board[new_empty_pos], new_board[self.empty_pos]
+                neighbors.append(Puzzle(new_board, self.moves + 1, self))
+        return neighbors
+
+    def is_goal(self):
+        return self.board == [1, 2, 3, 4, 5, 6, 7, 8, 0]
+
+    def get_path(self):
+        path = []
+        current = self
+        while current:
+            path.append(current.board)
+            current = current.prev
+        return path[::-1]
+
+def solve_puzzle(start_board):
+    start_puzzle = Puzzle(start_board)
+    frontier = []
+    heapq.heappush(frontier, (start_puzzle.manhattan_distance(), start_puzzle))
+    explored = set()
+
+    while frontier:
+        _, current_puzzle = heapq.heappop(frontier)
+        if current_puzzle.is_goal():
+            return current_puzzle.get_path()
+
+        explored.add(tuple(current_puzzle.board))
+
+        for neighbor in current_puzzle.get_neighbors():
+            if tuple(neighbor.board) not in explored:
+                heapq.heappush(frontier, (neighbor.moves + neighbor.manhattan_distance(), neighbor))
+
+    return None
+
+# Example usage:
+start_board = [1, 2, 3, 4, 0, 5, 6, 7, 8]
+solution = solve_puzzle(start_board)
+
+if solution:
+    for step in solution:
+        for i in range(0, 9, 3):
+            print(step[i:i+3])
+        print()
+else:
+    print("No solution found.")
