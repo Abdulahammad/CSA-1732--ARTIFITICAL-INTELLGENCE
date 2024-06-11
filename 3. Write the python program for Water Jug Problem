@@ -1,0 +1,39 @@
+from collections import deque
+
+def is_target_reached(jug1, jug2, target):
+    return jug1 == target or jug2 == target or jug1 + jug2 == target
+
+def water_jug_bfs(jug1_capacity, jug2_capacity, target):
+    visited = set()
+    queue = deque([(0, 0)])  # Initial state with both jugs empty
+    while queue:
+        jug1, jug2 = queue.popleft()
+        if (jug1, jug2) in visited:
+            continue
+        if is_target_reached(jug1, jug2, target):
+            return True
+        visited.add((jug1, jug2))
+        
+        # Possible actions
+        next_states = [
+            (jug1_capacity, jug2),  # Fill jug1
+            (jug1, jug2_capacity),  # Fill jug2
+            (0, jug2),              # Empty jug1
+            (jug1, 0),              # Empty jug2
+            (min(jug1 + jug2, jug1_capacity), jug1 + jug2 - min(jug1 + jug2, jug1_capacity)),  # Pour jug2 to jug1
+            (jug1 + jug2 - min(jug1 + jug2, jug2_capacity), min(jug1 + jug2, jug2_capacity))   # Pour jug1 to jug2
+        ]
+        
+        for state in next_states:
+            if state not in visited:
+                queue.append(state)
+    return False
+
+jug1_capacity = 4
+jug2_capacity = 3
+target = 2
+
+if water_jug_bfs(jug1_capacity, jug2_capacity, target):
+    print("Solution exists")
+else:
+    print("No solution")
