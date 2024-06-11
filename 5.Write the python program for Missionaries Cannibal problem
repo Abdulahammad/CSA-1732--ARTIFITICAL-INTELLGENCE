@@ -1,0 +1,56 @@
+from collections import deque
+
+def is_valid(state):
+    m1, c1, m2, c2, boat = state
+    if m1 < 0 or c1 < 0 or m2 < 0 or c2 < 0:
+        return False
+    if (m1 > 0 and m1 < c1) or (m2 > 0 and m2 < c2):
+        return False
+    return True
+
+def get_successors(state):
+    successors = []
+    m1, c1, m2, c2, boat = state
+    if boat == 1:
+        movements = [(-1, 0), (-2, 0), (0, -1), (0, -2), (-1, -1)]
+    else:
+        movements = [(1, 0), (2, 0), (0, 1), (0, 2), (1, 1)]
+    
+    for dm, dc in movements:
+        new_state = (m1 + dm, c1 + dc, m2 - dm, c2 - dc, 1 - boat)
+        if is_valid(new_state):
+            successors.append(new_state)
+    return successors
+
+def bfs(initial_state):
+    queue = deque([initial_state])
+    visited = set()
+    parent = {initial_state: None}
+    
+    while queue:
+        state = queue.popleft()
+        if state == (0, 0, 3, 3, 0):
+            return reconstruct_path(state, parent)
+        visited.add(state)
+        for successor in get_successors(state):
+            if successor not in visited and successor not in queue:
+                queue.append(successor)
+                parent[successor] = state
+    return None
+
+def reconstruct_path(state, parent):
+    path = []
+    while state:
+        path.append(state)
+        state = parent[state]
+    path.reverse()
+    return path
+
+initial_state = (3, 3, 0, 0, 1)
+solution = bfs(initial_state)
+
+if solution:
+    for step in solution:
+        print(step)
+else:
+    print("No solution found.")
