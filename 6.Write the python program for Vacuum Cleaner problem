@@ -1,0 +1,29 @@
+class VacuumCleaner:
+    def __init__(self):
+        self.location = 'A'  # Initial location
+        self.environment = {'A': 'Dirty', 'B': 'Dirty'}  # Initial state of the environment
+
+    def sense(self):
+        # Return the status of the current location
+        return self.environment[self.location]
+
+    def clean(self):
+        # Clean the current location
+        self.environment[self.location] = 'Clean'
+        print(f"Cleaning location {self.location}")
+
+    def move(self):
+        # Move to the other location
+        self.location = 'B' if self.location == 'A' else 'A'
+        print(f"Moving to location {self.location}")
+
+    def run(self):
+        # Run the vacuum cleaner until both locations are clean
+        while self.environment['A'] == 'Dirty' or self.environment['B'] == 'Dirty':
+            if self.sense() == 'Dirty':
+                self.clean()
+            self.move()
+
+# Initialize the vacuum cleaner and run it
+vacuum = VacuumCleaner()
+vacuum.run()
