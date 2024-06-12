@@ -1,0 +1,42 @@
+def is_valid(graph, node, color, colors):
+    for neighbor in graph[node]:
+        if colors.get(neighbor) == color:
+            return False
+    return True
+
+def map_coloring(graph, colors, node, color_options):
+    if node is None:
+        return True
+
+    for color in color_options:
+        if is_valid(graph, node, color, colors):
+            colors[node] = color
+            if map_coloring(graph, colors, get_uncolored_node(colors), color_options):
+                return True
+            colors[node] = None
+
+    return False
+
+def get_uncolored_node(colors):
+    for node in colors:
+        if colors[node] is None:
+            return node
+    return None
+
+# Example usage:
+graph = {
+    'A': ['B', 'C', 'D'],
+    'B': ['A', 'C', 'D'],
+    'C': ['A', 'B', 'D'],
+    'D': ['A', 'B', 'C']
+}
+
+color_options = ['Red', 'Green', 'Blue']
+colors = {node: None for node in graph}
+
+if map_coloring(graph, colors, get_uncolored_node(colors), color_options):
+    print("Coloring of the map is possible:")
+    for node, color in colors.items():
+        print(f"{node}: {color}")
+else:
+    print("No solution exists")
